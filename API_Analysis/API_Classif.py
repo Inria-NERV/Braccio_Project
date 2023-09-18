@@ -1,4 +1,11 @@
-# Filename: dialog.py
+################################################################################
+# Function: API_Classif.py
+# Author: Tristan Venot
+# Date: 18/09/2023
+# Description: This code is used for visualizing the distribution of powerspectrum features from a training set to a test set.
+# It gives 2 different representation, an histogram of the specific feature and a global 3d distriution of classes features thanks to a PCA
+# It is running in an API architecture that uses Qt.
+################################################################################
 
 
 """Dialog-Style application."""
@@ -34,6 +41,10 @@ from PyQt5.QtWidgets import QVBoxLayout
 
 from mpl_toolkits.mplot3d import Axes3D
 import nestle
+
+################################################################################
+#Functions related to getting the associate path of the csv features
+################################################################################
 
 def browseForRun1(self):
         directory = os.getcwd()
@@ -81,6 +92,13 @@ def browseForRun8(self):
         Script, dummy = QFileDialog.getOpenFileName(self, "Feature Vec 3", str(directory))
         Statistical_variables.Path_run_8 = os.path.basename(Script)
         return
+
+
+################################################################################
+#Functions to plot the PCA distribution in the form of ellipsoids
+################################################################################
+
+
 
 def rand_torus(ro, ri, npoints):
     """Generate points within a torus wth major radius `ro` and minor radius
@@ -130,6 +148,10 @@ class Statistical_variables:
     Path_run_6 = ''
     Path_run_7 = ''
     Path_run_8 = ''
+
+################################################################################
+#Main function
+################################################################################
 
 
 
@@ -271,6 +293,10 @@ def launch(path,filename_1,filename_2,filename_3,filename_4,filename_5,filename_
     Feature_MI_Test_F = np.array(Feature_MI_Test_F)
     Feature_Rest_Test_F = np.array(Feature_Rest_Test_F)
 
+    ################################################################################
+    #PCA part
+    ################################################################################
+
 
 
 
@@ -282,16 +308,11 @@ def launch(path,filename_1,filename_2,filename_3,filename_4,filename_5,filename_
     important_MI=[np.abs(transformer.components_[i]).argmax()for i in range(n)]
     important_Electrode_MI = [List_Electrode_asso_freq[important_MI[i]] for i in range(n)]
     important_Freq_MI = [ListFreq_asso_elec[important_MI[i]] for i in range(n)]
-    print(important_Electrode_MI)
-    print(important_Freq_MI)
     Rest_transformed = transformer.fit_transform(Rest_Feature_Selected).transpose()
-
     important_Rest=[np.abs(transformer.components_[i]).argmax()for i in range(n)]
     important_Electrode_Rest = [List_Electrode_asso_freq[important_Rest[i]] for i in range(n)]
     important_Freq_MI_Rest = [ListFreq_asso_elec[important_Rest[i]] for i in range(n)]
 
-    print(important_Electrode_Rest)
-    print(important_Freq_MI_Rest)
 
     fig = plt.figure()
 
@@ -312,20 +333,8 @@ def launch(path,filename_1,filename_2,filename_3,filename_4,filename_5,filename_
 
 
     npoints = 100
-    # ell_gen = nestle.Ellipsoid([np.max(MI_transformed[0,:]), np.max(MI_transformed[1,:]), np.max(MI_transformed[2,:])], np.dot(MI_transformed, MI_transformed.transpose()))
-    # # points = ell_gen.samples(npoints)
-    # pointvol = ell_gen.vol / npoints
-
     ells = nestle.bounding_ellipsoids(MI_transformed.T)
-
-
     plot_ellipsoid_3d(ells, ax,'r')
-
-
-
-    # ell_gen_r = nestle.Ellipsoid([np.max(Rest_transformed[0,:]), np.max(Rest_transformed[1,:]), np.max(Rest_transformed[2,:])], np.dot(Rest_transformed, Rest_transformed.transpose()))
-    # # points = ell_gen.samples(npoints)
-    # pointvol_r = ell_gen_r.vol / npoints
 
     ells_r = nestle.bounding_ellipsoids(Rest_transformed.T)
 
@@ -342,6 +351,11 @@ def launch(path,filename_1,filename_2,filename_3,filename_4,filename_5,filename_
     #path = '/Users/tristan.venot/Desktop/Experimentation_dataset/Batch2/Sub19/ses-01/Plots/' + title +'.png'
     #plt.savefig(path)
     plt.show()
+
+    ################################################################################
+    #Features specific part
+    ################################################################################
+
 
 
 
@@ -361,24 +375,12 @@ def launch(path,filename_1,filename_2,filename_3,filename_4,filename_5,filename_
                  color = 'red', edgecolor = 'black',alpha=0.45,weights = weights_mi)
         plt.hist(Rest_Feature_Selected[:,i], bins = 30,
                  color = 'blue', edgecolor = 'black',alpha=0.45,weights = weights_rest)
-        # ax.plot(X_test[index_list_succeed,i],y_success,'go')
-        # ax.plot(X_test[index_list_fail,i],y_fail,'r+')
+
         x_MI_succ = []
         x_Rest_succ = []
         x_MI_Fail = []
         x_Rest_Fail = []
-        # for k1 in range(len(MI_Success)):
-        #     x_MI_succ.append(MI_Success[k1][i])
-        # for k1 in range(len(MI_Fail)):
-        #     x_MI_Fail.append(MI_Fail[k1][i])
-        #
-        # for k1 in range(len(Rest_Success)):
-        #     x_Rest_succ.append(Rest_Success[k1][i])
-        # for k1 in range(len(Rest_Fail)):
-        #     x_Rest_Fail.append(Rest_Fail[k1][i])
-        #
-        # y_MI_Success = 2*np.ones(len(x_MI_succ))
-        # y_Rest_Success = 2*np.ones(len(x_Rest_succ))
+
         if Feature_MI_Test_F.shape[0]!=0:
             y_MI_Fail = 0.2*np.ones(len(Feature_MI_Test_F[:,i]))
             plt.plot((Feature_MI_Test_F[:,i]),y_MI_Fail,'ro',alpha = 0,label='_nolegend_')
@@ -392,10 +394,6 @@ def launch(path,filename_1,filename_2,filename_3,filename_4,filename_5,filename_
         if Feature_Rest_Test.shape[0]!=0:
             y_Rest = 0.1*np.ones(len(Feature_Rest_Test[:,i]))
             plt.plot((Feature_Rest_Test[:,i]),y_Rest,'bo',alpha =0,label='_nolegend_')
-        #
-
-
-
 
 
         #Distribution
@@ -449,9 +447,6 @@ def launch(path,filename_1,filename_2,filename_3,filename_4,filename_5,filename_
         if Feature_Rest_Test_F.shape[0]!=0:
             plt.plot((Feature_Rest_Test_F[:,i]),p_mi[x_rest_index_F],'bo',label='_nolegend_')
 
-
-
-
         # Title and labels
         title = 'Distribution for ' + List_Electrode_asso_freq[i] + ' at ' + str(ListFreq_asso_elec[i]) + 'Hz'+ '\n R^2 : ' + str(round(Rsquare[i],2))+ ' Wign : ' + str(round(Wsquare[i],2))
         #plt.text(2, -1, 'R^2 : ' + str(round(R[List_Index_Electrodes_freq[i],ListFreq_asso_elec[i]],4)), fontsize = 10)
@@ -465,6 +460,11 @@ def launch(path,filename_1,filename_2,filename_3,filename_4,filename_5,filename_
     # plt.figlegend(['Success MI','Success Rest','Failed MI','Failed Rest','Distribution MI','Distribution Rest','MI','Rest'], loc = 'lower center', ncol=5, labelspacing=0.)
     # plt.tight_layout()
     plt.show()
+
+
+################################################################################
+#Qt code for the GUI
+################################################################################
 
 
 class Dialog(QDialog):
