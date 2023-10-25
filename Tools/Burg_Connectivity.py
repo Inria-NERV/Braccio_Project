@@ -89,6 +89,8 @@ def spectral_coh_burg_calculation(Epoch_compute,noverlap,N_FFT,f_max, n_per_seg,
     Full_Mat = trialspectrum[:,:,:,round(f_max/(2*fres)):round(f_max/fres)] + np.transpose(trialspectrum[:,:,:,round(f_max/(2*fres)):round(f_max/fres)],(0,2,1,3))
     return Full_Mat
 
+
+
 #
 # def spectral_coh_burg_calculation(Epoch_compute, noverlap, N_FFT, f_max, n_per_seg, freqs_left, filter_order):
 #     a = Epoch_compute.shape
